@@ -3,7 +3,7 @@ Project to create an AI pokemon showdown bot
 
 #SET-UP
 
-git clone --recurse-submodules <repository-url>
+git clone --recurse-submodules repository-url
 
 pip install poke-env
 
