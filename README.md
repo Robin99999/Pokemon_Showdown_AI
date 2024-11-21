@@ -1,9 +1,17 @@
 # Pokemon_Showdown_AI
 Project to create an AI pokemon showdown bot
 
-Uses poke-env to simulate the pokemon showdown game environment
-@misc{poke_env,
-    author       = {Haris Sahovic},
-    title        = {Poke-env: pokemon AI in python},
-    url          = {https://github.com/hsahovic/poke-env}
-}
+#SET-UP
+
+git clone --recurse-submodules <repository-url>
+pip install poke-env
+
+#To run showdown locally
+git clone https://github.com/smogon/pokemon-showdown.git
+cd pokemon-showdown
+npm install
+cp config/config-example.js config/config.js
+node pokemon-showdown start --no-security
+
+Uses poke-env to simulate the pokemon showdown game environment in python
+
