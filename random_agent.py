@@ -11,7 +11,7 @@ player2 = RandomPlayer()
 
 async def main():
 
-    await player1.battle_against(player2, n_battles=3)
+    await player1.battle_against(player2, n_battles=100)
 
 asyncio.run(main())
 
