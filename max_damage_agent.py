@@ -1,43 +1,73 @@
 import asyncio
 import util
 
-from poke_env import RandomPlayer
+# from poke_env.data import GenData, to_id_str
+from poke_env.environment.abstract_battle import AbstractBattle
 from poke_env.player.player import Player
 from poke_env.environment.move_category import MoveCategory
+from poke_env.environment.pokemon import Pokemon
+from poke_env.player.battle_order import BattleOrder
 
 class MaxDamagePlayer(Player):
-    def choose_move(self, battle):
-        # check if no moves available and see if switch or struggle
-        if not battle.available_moves:
-            best_switch = best_switch(self, battle)
-            return self.create_order(best_switch) if best_switch else self.create_order("struggle")
+    def choose_move(self, battle: AbstractBattle) -> BattleOrder:
+        # return self.choose_random_move(battle)
+        # print("possible moves ", battle.available_moves)
+        # print('apokemon:', battle.active_pokemon, type(battle.active_pokemon))
         
-        # check if there is a better pokemon for this matchup
-        score = self.type_matchup(battle.active_pokemon, battle.oppenent_active_pokemon)
-        if score >= 1: 
-            best_switch = best_switch(self, battle)
-            if best_switch:
-                return self.create_order(best_switch)
-        
-        best_move = max(
-            battle.available_moves,
-            key=lambda move: util.calc_damage(battle.active_pokemon, battle.oppenenet_active_pokemon, move)
-        )
-        return self.create_order(best_move)
+        if not (battle.available_switches and battle.available_moves):
+            return self.choose_random_move(battle)
+        else:
+            current_mon = battle.active_pokemon
+            opp_mon = battle.opponent_active_pokemon
+
+            
+            #keeps associated damage with move
+            moves_with_damage = [
+                (move, util.calc_damage(current_mon, opp_mon, move)) 
+                for move in battle.available_moves
+            ]
+
+            # Find the best move based on the maximum damage
+            best_move, best_damage = max(moves_with_damage, key=lambda x: x[1])
+            # print(best_move,"dam", best_damage)
+            # check if there is a better pokemon for this matchup
+            
+            if battle.available_switches:
+                score = self.type_matchup(current_mon,opp_mon)
+                b_switch = self.best_switch(battle)
+                # print(score)
+                # print(b_switch[1])
+                if score > b_switch[1] and score >= 0 and not best_damage > 500:
+                    return self.create_order(b_switch[0])
+
+
+
+            # check if no moves available and see if switch or struggle
+            if not battle.available_moves or best_damage <= 50:
+                switch = self.best_switch(battle)
+                return self.create_order(switch) if switch else self.create_order("struggle")
+            
+
+            return self.create_order(best_move)
 
 
     def best_switch(self, battle):
         if not battle.available_switches:
-            return none
-        
-        return min(
-            battle.available_switches,
-            key=lambda switch: self.type_matchup(switch, battle.opponent_active_pokemon)
-        )
+            return None
         
 
-    def type_matchup(self, my_pokemon, opp_pokemon):
-        multiplier = my_pokemon.damage_multiplier(opp_pokemon.type_1, opp_pokemon.type_2)
+        best_switch = [
+                (switch, self.type_matchup(switch, battle.opponent_active_pokemon))
+                for switch in battle.available_switches
+            ]
+
+        best_switch, best_score = min(best_switch, key=lambda x: x[1])
+        return (best_switch,best_score)
+        
+    #lower the num the better
+    def type_matchup(self, my_pokemon:Pokemon, opponent_pokemon:Pokemon):
+        # how much opponent pokemon hits into our pokemon
+        score = [opponent_pokemon.damage_multiplier(t) for t in my_pokemon.types if t is not None]
 
         multiplier_dict = {
             4: 1,
@@ -47,4 +77,6 @@ class MaxDamagePlayer(Player):
             0.25: -1,
             0: -float("inf"),
         }
-        return multiplier_dict.get(multiplier,0)
+        score = sum(multiplier_dict[m] for m in score)
+
+        return score
