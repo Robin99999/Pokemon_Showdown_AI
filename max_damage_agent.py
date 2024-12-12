@@ -7,6 +7,7 @@ from poke_env.player.player import Player
 from poke_env.environment.move_category import MoveCategory
 from poke_env.environment.pokemon import Pokemon
 from poke_env.player.battle_order import BattleOrder
+from poke_env.ps_client.ps_client import PSClient
 
 class MaxDamagePlayer(Player):
     def choose_move(self, battle: AbstractBattle) -> BattleOrder:
