@@ -15,10 +15,10 @@ player4 = MinimaxPlayer()
 
 async def main():
     # await player1.send_challenges("testingforme", n_challenges=1)
-    await player4.battle_against(player2, n_battles=1)
+    await player1.battle_against(player3, n_battles=100)
     
     print(
-        f"Player {player4.username} won {player4.n_won_battles} out of {player4.n_finished_battles} played"
+        f"Player {player1.username} won {player1.n_won_battles} out of {player1.n_finished_battles} played"
     )
 
 asyncio.run(main())
