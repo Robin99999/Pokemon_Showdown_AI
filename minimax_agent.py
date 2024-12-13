@@ -31,8 +31,8 @@ class MinimaxPlayer(Player):
             max_eval = -float("inf")
             best_move = None
             for move in self.available_actions(battle):
-                next_battle = self.simulate_turn(battle, move, whos_turn=True)
-                _, curr_eval = self.minimax(next_battle, depth - 1, False)
+                # next_battle = self.simulate_turn(battle, move, whos_turn=True)
+                _, curr_eval = self.minimax(battle, depth - 1, False)
                 if curr_eval > max_eval:
                     max_eval = curr_eval
                     best_move = move
@@ -41,8 +41,8 @@ class MinimaxPlayer(Player):
             min_eval = float("inf")
             best_move = None
             for move in self.available_actions(battle):
-                next_battle = self.simulate_turn(battle, move, whos_turn=False)
-                _, curr_eval = self.minimax(next_battle, depth - 1, True)
+                # next_battle = self.simulate_turn(battle, move, whos_turn=False)
+                _, curr_eval = self.minimax(battle, depth - 1, True)
                 if curr_eval < max_eval:
                     min_eval = curr_eval
                     best_move = move
@@ -94,7 +94,7 @@ class MinimaxPlayer(Player):
         #     battle_copy._switch
         
         # return battle_copy
-        battle_dict = 
+        battle_dict = 1
         freeze = json.dumps(battle_dict)
         
     
