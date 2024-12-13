@@ -1,5 +1,6 @@
 import asyncio
 import util
+import json
 
 from poke_env.player.player import Player
 from poke_env.environment.abstract_battle import AbstractBattle
@@ -7,6 +8,7 @@ from poke_env.environment.move_category import MoveCategory
 from poke_env.environment.pokemon import Pokemon
 from poke_env.player.battle_order import BattleOrder
 from poke_env.ps_client.ps_client import PSClient
+from poke_env.environment.move import Move
 from copy import deepcopy
 
 class MinimaxPlayer(Player):
@@ -53,21 +55,17 @@ class MinimaxPlayer(Player):
         if not curr_mon or not opp_mon:
             return 0
         
-        my_damage = (
-            max(util.calc_damage(curr_mon, opp_mon, move) 
-            for move in battle.available_moves) if battle.available_moves else 0
-        )
+        moves_with_damage = [
+                (move, util.calc_damage(curr_mon, opp_mon, move)) 
+                for move in battle.available_moves if isinstance(move, Move)]
 
-        opp_damage = (
-            max(util.calc_damage(opp_mon, curr_mon, move) 
-            for move in opp_mon.moves.values()) if opp_mon.moves else 0
-        )
+        best_move, my_damage = max(moves_with_damage, key=lambda x: x[1])
 
-        type_score = self.type_matchup(curr_mon, opp_mon)
+        #type_score = self.type_matchup(curr_mon, opp_mon)
 
         hp_diff = curr_mon.current_hp_fraction - opp_mon.current_hp_fraction
 
-        return my_damage - opp_damage + type_score + hp_diff * 100
+        return my_damage + hp_diff * 100
     
     def type_matchup(self, my_pokemon:Pokemon, opponent_pokemon:Pokemon):
         # how much opponent pokemon hits into our pokemon
@@ -84,18 +82,21 @@ class MinimaxPlayer(Player):
         score = sum(multiplier_dict[m] for m in score)
     
     def simulate_turn(self, battle: AbstractBattle, move, whos_turn: bool) -> AbstractBattle:
-        battle_copy = deepcopy(battle)
+        # battle_copy = deepcopy(battle)
 
-        curr_mon = battle_copy.active_pokemon if whos_turn else battle_copy.opponent_active_pokemon
-        opp_mon = battle_copy.opponent_active_pokemon if whos_turn else battle_copy.active_pokemon
+        # curr_mon = battle_copy.active_pokemon if whos_turn else battle_copy.opponent_active_pokemon
+        # opp_mon = battle_copy.opponent_active_pokemon if whos_turn else battle_copy.active_pokemon
         
-        if move in battle_copy.available_moves:
-            dmg = util.calc_damage(curr_mon, opp_mon, move)
-            opp_mon.current_hp = max(0, opp_mon.current_hp - dmg)
-        elif move in battle_copy.available_switches:
-            battle_copy._switch
+        # if move in battle_copy.available_moves:
+        #     dmg = util.calc_damage(curr_mon, opp_mon, move)
+        #     opp_mon.current_hp = max(0, opp_mon.current_hp - dmg)
+        # elif move in battle_copy.available_switches:
+        #     battle_copy._switch
         
-        return battle_copy
+        # return battle_copy
+        battle_dict = 
+        freeze = json.dumps(battle_dict)
+        
     
     def available_actions(self, battle: AbstractBattle):
         actions = battle.available_moves or []
