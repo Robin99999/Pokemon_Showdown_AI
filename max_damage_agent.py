@@ -8,6 +8,10 @@ from poke_env.environment.move_category import MoveCategory
 from poke_env.environment.pokemon import Pokemon
 from poke_env.player.battle_order import BattleOrder
 from poke_env.ps_client.ps_client import PSClient
+from poke_env.player.battle_order import (
+    BattleOrder,
+    DefaultBattleOrder,
+)
 
 class MaxDamagePlayer(Player):
     def choose_move(self, battle: AbstractBattle) -> BattleOrder:
@@ -15,21 +19,21 @@ class MaxDamagePlayer(Player):
         # print("possible moves ", battle.available_moves)
         # print('apokemon:', battle.active_pokemon, type(battle.active_pokemon))
         
-        if not (battle.available_switches and battle.available_moves):
-            return self.choose_random_move(battle)
-        else:
+        if battle.available_switches or battle.available_moves:
+
+        
             current_mon = battle.active_pokemon
             opp_mon = battle.opponent_active_pokemon
-
-            
-            #keeps associated damage with move
-            moves_with_damage = [
-                (move, util.calc_damage(current_mon, opp_mon, move)) 
-                for move in battle.available_moves
-            ]
+            best_damage = 0
+            if battle.available_moves:
+                #keeps associated damage with move
+                moves_with_damage = [
+                    (move, util.calc_damage(current_mon, opp_mon, move)) 
+                    for move in battle.available_moves
+                ]
 
             # Find the best move based on the maximum damage
-            best_move, best_damage = max(moves_with_damage, key=lambda x: x[1])
+                best_move, best_damage = max(moves_with_damage, key=lambda x: x[1])
             # print(best_move,"dam", best_damage)
             # check if there is a better pokemon for this matchup
             
@@ -45,11 +49,15 @@ class MaxDamagePlayer(Player):
 
             # check if no moves available and see if switch or struggle
             if not battle.available_moves or best_damage <= 50:
-                switch = self.best_switch(battle)
-                return self.create_order(switch) if switch else self.create_order("struggle")
+                return self.choose_random_move(battle)
             
 
             return self.create_order(best_move)
+        else:
+            # print(battle.available_moves, battle.available_switches)
+            # print('hi3232')
+            return self.choose_random_move(battle)
+
 
 
     def best_switch(self, battle):
