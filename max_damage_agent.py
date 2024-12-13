@@ -38,7 +38,7 @@ class MaxDamagePlayer(Player):
                 b_switch = self.best_switch(battle)
                 # print(score)
                 # print(b_switch[1])
-                if score > b_switch[1] and score >= 0 and not best_damage > 500:
+                if score < b_switch[1] and score <= 0 and not best_damage > 500:
                     return self.create_order(b_switch[0])
 
 
