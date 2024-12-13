@@ -39,16 +39,20 @@ class MaxDamagePlayer(Player):
             
             if battle.available_switches:
                 score = self.type_matchup(current_mon,opp_mon)
-                b_switch = self.best_switch(battle)
+                b_switch, b_score = self.best_switch(battle)
                 # print(score)
                 # print(b_switch[1])
-                if score < b_switch[1] and score <= 0 and not best_damage > 500:
-                    return self.create_order(b_switch[0])
+
+                if score < b_score and score < 0 and not best_damage > 400:
+                    return self.create_order(b_switch)
 
 
 
             # check if no moves available and see if switch or struggle
             if not battle.available_moves or best_damage <= 50:
+                if battle.available_switches: 
+                    b_switch, b_score = self.best_switch(battle)
+                    return self.create_order(b_switch)
                 return self.choose_random_move(battle)
             
 
@@ -69,15 +73,16 @@ class MaxDamagePlayer(Player):
                 (switch, self.type_matchup(switch, battle.opponent_active_pokemon))
                 for switch in battle.available_switches
             ]
-
-        best_switch, best_score = min(best_switch, key=lambda x: x[1])
-        return (best_switch,best_score)
         
-    #lower the num the better
+        best_switch, best_score = max(best_switch, key=lambda x: x[1])
+        return best_switch,best_score
+        
+   
     def type_matchup(self, my_pokemon:Pokemon, opponent_pokemon:Pokemon):
         # how much opponent pokemon hits into our pokemon
         score = [opponent_pokemon.damage_multiplier(t) for t in my_pokemon.types if t is not None]
-
+        # print(opponent_pokemon.types)
+        # print(my_pokemon.name)
         multiplier_dict = {
             4: 1,
             2: 0.5,
@@ -87,5 +92,5 @@ class MaxDamagePlayer(Player):
             0: -float("inf"),
         }
         score = sum(multiplier_dict[m] for m in score)
-
+        # print(score)
         return score
